@@ -36,6 +36,17 @@ app.post("/login", async (req, res) => {
     res.send("OK");
 });
 
+app.post("/registro", async (req, res) => {
+    let hash = crypto.createHash("sha256");
+
+    hash.update(req.body.pwd);
+    const hashedPwd = hash.digest("hex");
+
+    //SEND TO DB
+    res.status(201);
+    res.send("OK");
+})
+
 app.listen(8080, 'localhost', () => {
     console.log("listening on port 8080");
 })
