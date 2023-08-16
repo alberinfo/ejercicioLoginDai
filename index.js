@@ -1,13 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-const crypto = require("crypto");
-
-const usuarios = [
-    {
-        name: "haggerty",
-        pwd: "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
-    }
-]
+import express from "express";
+import cors from "cors";
+import crypto from "crypto";
+import DB from "./DB.js";
 
 const app = express();
 app.use(express.json());
@@ -37,14 +31,21 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/registro", async (req, res) => {
+    if (await DB.getUser(req.body.name) !== "error") { //chequear
+        res.status(400); //Bad request
+        res.send({error: "User already exists"});
+        return;
+    }
+
     let hash = crypto.createHash("sha256");
 
     hash.update(req.body.pwd);
     const hashedPwd = hash.digest("hex");
 
-    //SEND TO DB
+    const result = await DB.insertUser(req.body);
+
     res.status(201);
-    res.send("OK");
+    res.send("Ok");
 })
 
 app.listen(8080, 'localhost', () => {
