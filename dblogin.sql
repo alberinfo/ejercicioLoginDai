@@ -7,5 +7,3 @@ USE [ejercicioDai]
 GO
 CREATE USER [ejercicioDai] FOR LOGIN [ejercicioDai]
 ALTER ROLE [db_owner] ADD MEMBER [ejercicioDai]
-
- 

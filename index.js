@@ -9,7 +9,8 @@ app.use(cors())
 
 app.post("/login", async (req, res) => {
     let hash = crypto.createHash("sha256")
-    const usuario = usuarios.find((usuario) => usuario.name === req.body.name);
+
+    const usuario = await DB.getUser(req.body.name);
     
     if(typeof usuario === "undefined") {
         res.status(401); //unauthorized
@@ -31,7 +32,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/registro", async (req, res) => {
-    if (await DB.getUser(req.body.name) !== "error") { //chequear
+    if (typeof await DB.getUser(req.body.name) !== "undefined") { //chequear
         res.status(400); //Bad request
         res.send({error: "User already exists"});
         return;
@@ -41,6 +42,7 @@ app.post("/registro", async (req, res) => {
 
     hash.update(req.body.pwd);
     const hashedPwd = hash.digest("hex");
+    req.body.pwd = hashedPwd;
 
     const result = await DB.insertUser(req.body);
 
