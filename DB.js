@@ -23,6 +23,16 @@ class DB {
             return err;
         }
     }
+
+    static updateUser = async (user) => {
+        try {
+            let pool = await sql.connect(config);
+            return;
+        } catch (err) {
+            console.log(err);
+            return err;
+        }
+    }
 }
 
 export default DB;

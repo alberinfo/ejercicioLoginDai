@@ -7,6 +7,8 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 
+let peopleLoggedIn = [];
+
 app.post("/login", async (req, res) => {
     let hash = crypto.createHash("sha256")
 
@@ -27,8 +29,12 @@ app.post("/login", async (req, res) => {
         return;
     }
 
+    hash.update(crypto.randomInt(0, 140737488355328)); //2^47
+    let newKey = hash.digest("hex");
+    peopleLoggedIn.push(newKey);
+
     res.status(200);
-    res.send("OK");
+    res.send(newKey);
 });
 
 app.post("/registro", async (req, res) => {
@@ -48,6 +54,19 @@ app.post("/registro", async (req, res) => {
 
     res.status(201);
     res.send("Ok");
+})
+
+app.use((req, res, next) => {
+    if(typeof peopleLoggedIn.find(req.headers.authorization) !== "undefined") {
+        next();
+    }
+    res.status(401);
+    res.send("Unauthorized");
+    return;
+})
+
+app.patch("/updateUser", async (req, res) => {
+    
 })
 
 app.listen(8080, 'localhost', () => {
