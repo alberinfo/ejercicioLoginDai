@@ -7,9 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(cors())
 
-app.post("/login", async (req, res) => {
-    let hash = crypto.createHash("sha256")
+let loggedUsers = [];
 
+app.post("/login", async (req, res) => {
     const usuario = await DB.getUser(req.body.name);
     
     if(typeof usuario === "undefined") {
@@ -18,8 +18,7 @@ app.post("/login", async (req, res) => {
         return;
     }
 
-    hash.update(req.body.pwd);
-    const providedPwd = hash.digest("hex");
+    const providedPwd = crypto.createHash("sha256").update(req.body.pwd).digest("hex");
 
     if(usuario.pwd !== providedPwd) {
         res.status(401);
@@ -27,8 +26,12 @@ app.post("/login", async (req, res) => {
         return;
     }
 
+    let rnd = crypto.randomInt(4000000000).toString();
+    let sessionId = crypto.createHash("sha256").update(rnd).digest("hex");
+    loggedUsers.push(sessionId);
+
     res.status(200);
-    res.send("OK");
+    res.send(sessionId);
 });
 
 app.post("/registro", async (req, res) => {
@@ -48,6 +51,28 @@ app.post("/registro", async (req, res) => {
 
     res.status(201);
     res.send("Ok");
+})
+
+app.use((req, res, next) => {
+    if(!req.headers.authorization) {
+        return res.status(403).json({error: "No credentials sent"});
+    }
+
+    if(typeof loggedUsers.find((i) => i == req.headers.authorization) === "undefined") {
+        return res.status(401).json({error: "User is not logged in"});
+    }
+
+    next();
+})
+
+app.get("/perfil", async (req, res) => {
+    const perfil = await DB.getPerfilByUser(req.body.name);
+    res.status(200).json(perfil);
+})
+
+app.post("/perfil", async (req, res) => {
+    const result = await DB.insertPerfil(req.body.username, req.body.perfil);
+    res.status(200).send("OK");
 })
 
 app.listen(8080, 'localhost', () => {
