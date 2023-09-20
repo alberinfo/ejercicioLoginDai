@@ -27,7 +27,7 @@ class DB {
     static getPerfilByUser = async (name) => {
         try {
             let pool = await sql.connect(config);
-            let result = await pool.request().input("pname", sql.NVarChar, name).query("SELECT * FROM [perfil] INNER JOIN [user] ON [user].name = @pname WHERE fkUsuario = 1");
+            let result = await pool.request().input("pname", sql.NVarChar, name).query("SELECT perfil.* FROM [perfil] INNER JOIN [user] ON [user].name = @pname WHERE fkUsuario = 1");
             return result.recordset[0];
         } catch (err) {
             console.log(err);

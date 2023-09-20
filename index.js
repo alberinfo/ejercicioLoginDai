@@ -65,8 +65,8 @@ app.use((req, res, next) => {
     next();
 })
 
-app.get("/perfil", async (req, res) => {
-    const perfil = await DB.getPerfilByUser(req.body.name);
+app.get("/perfil/:name", async (req, res) => {
+    const perfil = await DB.getPerfilByUser(req.params.name);
     res.status(200).json(perfil);
 })
 
