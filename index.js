@@ -75,6 +75,12 @@ app.post("/perfil", async (req, res) => {
     res.status(200).send("OK");
 })
 
+app.put("/perfil", async (req, res) => {
+    console.log("HOOOOOOOOOOOLAAAAAAAA");
+    const result = await DB.updatePerfil(req.body.username, req.body.perfil);
+    res.status(200).send("OK");
+})
+
 app.listen(8080, 'localhost', () => {
     console.log("listening on port 8080");
 })

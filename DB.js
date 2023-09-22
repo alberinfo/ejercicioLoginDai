@@ -27,7 +27,7 @@ class DB {
     static getPerfilByUser = async (name) => {
         try {
             let pool = await sql.connect(config);
-            let result = await pool.request().input("pname", sql.NVarChar, name).query("SELECT perfil.* FROM [perfil] INNER JOIN [user] ON [user].name = @pname WHERE fkUsuario = 1");
+            let result = await pool.request().input("pname", sql.NVarChar, name).query("SELECT perfil.* FROM [perfil] INNER JOIN [user] ON [user].name = @pname WHERE fkUsuario = [user].id");
             return result.recordset[0];
         } catch (err) {
             console.log(err);
@@ -39,6 +39,17 @@ class DB {
         try {
             let pool = await sql.connect(config);
             let result = await pool.request().input("pname", sql.NVarChar, username).input("ppelo", perfil.colorDePelo).input("pamigos", perfil.cantAmigos).query("INSERT INTO [perfil](fkUsuario, colorDePelo, cantAmigos) VALUES((SELECT id FROM [user] WHERE name = @pname), @ppelo, @pamigos)");
+            return result.rowsaffected;
+        } catch (err) {
+            console.log(err);
+            return err;
+        }
+    }
+
+    static updatePerfil = async (username, perfil) => {
+        try {
+            let pool = await sql.connect(config);
+            let result = await pool.request().input("pname", sql.NVarChar, username).input("ppelo", perfil.colorDePelo).input("pamigos", perfil.cantAmigos).query("UPDATE [perfil] SET colorDePelo = @ppelo, cantAmigos = @pamigos WHERE fkUsuario = (SELECT id FROM [user] WHERE name = @pname)");
             return result.rowsaffected;
         } catch (err) {
             console.log(err);
